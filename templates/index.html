@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Intelligent Transportation System Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+
+
+    <style>
+    /* Reset & base */
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f5f7fa;
+      margin: 0;
+      color: #333;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    /* Container grid layout */
+    .container {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      grid-template-rows: 70px 1fr 50px;
+      gap: 24px;
+      height: 100vh;
+      padding: 24px;
+    }
+
+    /* Header banner with logo + title */
+    header {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: #5b21b6;
+      color: white;
+      font-weight: 700;
+      font-size: 1.5rem;
+      padding: 0 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgb(91 33 182 / 0.35);
+    }
+    header .logo {
+      width: 40px;
+      height: 40px;
+      background: white;
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #5b21b6;
+      font-weight: 900;
+      font-size: 1.2rem;
+      user-select: none;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    /* Sidebar styling */
+    nav.sidebar {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      box-shadow: 0 4px 12px rgb(0 0 0 / 0.07);
+      user-select: none;
+    }
+    nav.sidebar button {
+      background: #5b21b6;
+      color: white;
+      border: none;
+      padding: 14px 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      text-align: left;
+      font-weight: 600;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: background-color 0.2s ease;
+      box-shadow: 0 2px 6px rgb(91 33 182 / 0.3);
+    }
+    nav.sidebar button svg {
+      width: 20px;
+      height: 20px;
+      fill: white;
+      flex-shrink: 0;
+    }
+    nav.sidebar button:hover:not(.active) {
+      background-color: #7c3aed;
+      box-shadow: 0 4px 10px rgb(124 58 237 / 0.5);
+    }
+    nav.sidebar button.active {
+      background: #7c3aed;
+      box-shadow: 0 6px 18px rgb(124 58 237 / 0.7);
+      position: relative;
+    }
+    nav.sidebar button:focus-visible {
+      outline: 3px solid #d8b4fe;
+      outline-offset: 2px;
+    }
+
+    /* Main panel */
+    main.panel {
+      background: white;
+      border-radius: 12px;
+      padding: 32px 36px;
+      overflow-y: auto;
+      box-shadow: 0 6px 16px rgb(0 0 0 / 0.08);
+      font-size: 1rem;
+      color: #222;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Cards inside main */
+    .card {
+      background: #fafafa;
+      border-radius: 12px;
+      padding: 24px 28px;
+      box-shadow: 0 4px 14px rgb(0 0 0 / 0.06);
+      border: 1px solid #e4e4e7;
+      font-size: 1rem;
+      line-height: 1.5;
+      color: #333;
+    }
+
+    /* Output area */
+    .output-area {
+      background: #1e1e2f;
+      color: #c7d0ff;
+      font-family: 'Source Code Pro', monospace, monospace;
+      white-space: pre-wrap;
+      overflow-y: auto;
+      max-height: 280px;
+      border-radius: 12px;
+      padding: 18px 22px;
+      box-shadow: inset 0 0 10px #4f46e5aa;
+      border: 1px solid #4f46e5aa;
+      user-select: text;
+      font-size: 0.9rem;
+    }
+    .output-area h2 {
+      color: #a5b4fc;
+      font-weight: 700;
+      margin-top: 0;
+      margin-bottom: 12px;
+      font-size: 1.25rem;
+    }
+
+    /* Labels & inputs */
+    label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 8px;
+      font-size: 1.1rem;
+      color: #4b5563;
+    }
+    input[type="text"],
+    select {
+      padding: 12px 14px;
+      width: 100%;
+      border-radius: 8px;
+      border: 1.8px solid #cbd5e1;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+    }
+    input[type="text"]:focus,
+    select:focus {
+      border-color: #7c3aed;
+      outline: none;
+      box-shadow: 0 0 6px #7c3aedaa;
+    }
+
+    /* File upload improvements */
+    #upload-section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    #dataset-file {
+      border: 2px dashed #a78bfa;
+      border-radius: 12px;
+      padding: 36px;
+      text-align: center;
+      font-size: 1.1rem;
+      color: #6b7280;
+      cursor: pointer;
+      transition: background-color 0.2s ease, border-color 0.3s ease;
+      user-select: none;
+    }
+    #dataset-file.dragover {
+      background-color: #f0ebff;
+      border-color: #7c3aed;
+      color: #5b21b6;
+    }
+
+    /* Button styles */
+    .action-btn {
+      background: #5b21b6;
+      color: white;
+      padding: 14px 26px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 1.1rem;
+      box-shadow: 0 4px 14px rgb(91 33 182 / 0.5);
+      transition: background-color 0.3s ease;
+      align-self: flex-start;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .action-btn:hover {
+      background: #7c3aed;
+      box-shadow: 0 6px 18px rgb(124 58 237 / 0.7);
+    }
+    .action-btn:focus-visible {
+      outline: 3px solid #d8b4fe;
+      outline-offset: 3px;
+    }
+
+    /* Footer */
+    footer {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 14px 20px;
+      font-style: italic;
+      color: #555;
+      background: white;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      user-select: none;
+      box-shadow: 0 2px 10px rgb(0 0 0 / 0.05);
+    }
+
+    /* Tooltip styling */
+    nav.sidebar button[title] {
+      position: relative;
+    }
+    nav.sidebar button[title]:hover::after,
+    nav.sidebar button[title]:focus-visible::after {
+      content: attr(title);
+      position: absolute;
+      left: 110%;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #7c3aed;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 8px;
+      white-space: nowrap;
+      font-size: 0.85rem;
+      font-weight: 600;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+      z-index: 100;
+      pointer-events: none;
+      opacity: 1;
+      transition: opacity 0.15s ease;
+    }
+
+    /* Scrollbar for output */
+    .output-area::-webkit-scrollbar {
+      width: 10px;
+    }
+    .output-area::-webkit-scrollbar-thumb {
+      background: #7c3aed;
+      border-radius: 10px;
+    }
+    footer {
+  background-color: #1f2937;  /* Dark slate gray */
+  color: #f9fafb;             /* Almost white text */
+  text-align: center;
+  padding: 12px 20px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  box-shadow: 0 -2px 6px rgba(0,0,0,0.15);
+  user-select: none;
+}
+
+footer a {
+  color: #60a5fa; /* Soft blue for links */
+  text-decoration: none;
+  font-weight: 600;
+}
+
+footer a:hover {
+  text-decoration: underline;
+  color: #3b82f6; /* Slightly brighter blue on hover */
+}
+
+  </style>
+</head>
+<body>
+  <div class="container">
+   <header style="display: flex; justify-content: space-between; align-items: center; padding: 10px;">
+  <div style="display: flex; align-items: center; gap: 10px;">
+    <div class="logo" aria-label="Project logo" role="img" title="ITS Logo" style="font-weight: bold; font-size: 24px;">
+      ITS
+    </div>
+    <div style="font-size: 18px; font-weight: 600;">
+       BDA in Intelligent Transportation System :A Survey
+    </div>
+  </div>
+
+  
+    <img src="static/parul.png" 
+       alt="Parul University " 
+       style="height: 70px;" />
+  
+</header>
+
+    <nav class="sidebar" aria-label="Main Navigation">
+      <button class="active" type="button" title="Upload your traffic dataset CSV file">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 20h14v-2H5v2zm7-18L5.33 9h3.67v4h4v-4h3.67L12 2z"/></svg>
+        Upload Dataset
+      </button>
+      <button type="button" title="Initialize Spark session for data processing">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2l3 7h7l-5.7 4.1 2 6.9-6.3-4.5L5 20l2-6.9L2 9h7z"/></svg>
+        Initialize Spark
+      </button>
+      <button type="button" title="Select features to use in model training">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 7a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm0 8a6 6 0 0 1-4.472-10.12L8 9h8l.472-4.12A6 6 0 0 1 12 15z"/></svg>
+        Feature Selection
+      </button>
+      <button type="button" title="Train a linear regression model">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 17h2v2H3v-2zm2-6h2v2H5v-2zm12 6h2v2h-2v-2zm-6-6h2v2h-2v-2zm0 6h2v2h-2v-2zm6-12v2h2V5h-2zm-6 0v2h2V5h-2zm-6 0v2h2V5H5z"/></svg>
+        Run Linear Regression
+      </button>
+      <button type="button" title="Train a decision tree model">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2L8 7h8l-4-5zm0 7l-3 5h6l-3-5zm-6 7h12v2H6v-2z"/></svg>
+        Run Decision Tree
+      </button>
+      <button type="button" title="Show model accuracy comparison graph">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 13h2v7H3v-7zm4-4h2v11H7V9zm4-6h2v17h-2V3zm4 4h2v13h-2V7zm4-4h2v17h-2V3z"/></svg>
+        Accuracy Graph
+      </button>
+      <button type="button" title="Find best route between two locations">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/></svg>
+        Find Best Route
+      </button>
+    </nav>
+
+    <main class="panel" role="main" id="main-panel" tabindex="0">
+      <!-- Content loads here -->
+    </main>
+
+    <footer>
+  Developed by A.Trinadh Sai, V.V.Ramana Reddy, V.Ashok Reddy, A.Jaya Simha Reddy&nbsp;|&nbsp;
+  Guide: <a href="#" title="Guide Profile">Alok Singh Kushwaha sir</a> / 
+  <a href="https://paruluniversity.ac.in/" target="_blank" rel="noopener">PIET Parul University</a>
+</footer>
+
+  </div>
+  <script>
+    // Your existing JS code unchanged, only minor update for file input label styling effect
+    const backendBase = "";
+    const sidebarButtons = document.querySelectorAll('nav.sidebar button');
+    const mainPanel = document.getElementById('main-panel');
+
+    async function fetchDatasets() {
+      const res = await fetch(`${backendBase}/datasets`);
+      const j = await res.json();
+      return j.datasets || [];
+    }
+
+    const contentMap = {
+      "Upload Dataset": `
+        <section class="card" id="upload-section">
+          <h2>1. Upload Road Traffic Dataset (CSV)</h2>
+          <label for="dataset-file" id="file-label">Choose CSV file</label>
+          <input type="file" id="dataset-file" accept=".csv" />
+          <button class="action-btn" id="upload-btn">Upload</button>
+          <div id="upload-info" style="margin-top:10px; font-weight:600;"></div>
+        </section>
+      `,
+      "Initialize Spark": `
+        <section class="card">
+          <h2>2. Initialize Spark Session</h2>
+          <p>Use this if you installed pyspark. Otherwise it returns an informative message.</p>
+          <button class="action-btn" id="init-spark-btn">Initialize Spark</button>
+        </section>
+      `,
+      "Feature Selection": `
+        <section class="card">
+          <h2>3. Feature Selection</h2>
+          <p>Automatic numeric feature detection is applied. You can choose the target column when running algorithms.</p>
+        </section>
+      `,
+      "Run Linear Regression": `
+        <section class="card">
+          <h2>4. Run Linear Regression</h2>
+          <label for="dataset-select-lr">Choose dataset</label>
+          <select id="dataset-select-lr"></select>
+          <label for="target-select-lr">Choose target column (numeric)</label>
+          <select id="target-select-lr"></select>
+          <button class="action-btn" id="run-linreg-btn">Run Linear Regression</button>
+        </section>
+      `,
+      "Run Decision Tree": `
+        <section class="card">
+          <h2>5. Run Decision Tree</h2>
+          <label for="dataset-select-dt">Choose dataset</label>
+          <select id="dataset-select-dt"></select>
+          <label for="target-select-dt">Choose target column (numeric)</label>
+          <select id="target-select-dt"></select>
+          <button class="action-btn" id="run-dtree-btn">Run Decision Tree</button>
+        </section>
+      `,
+      "Accuracy Graph": `
+        <section class="card">
+          <h2>6. Accuracy Comparison Graph</h2>
+          <button class="action-btn" id="accuracy-btn">Show Latest Accuracy Graph</button>
+          <div id="accuracy-container" style="margin-top:12px;"></div>
+        </section>
+      `,
+      "Find Best Route": `
+        <section class="card" id="route-section">
+          <h2>Find Best Route</h2>
+          <label for="origin">Origin</label>
+          <input type="text" id="origin" placeholder="Enter origin location" />
+          <label for="destination">Destination</label>
+          <input type="text" id="destination" placeholder="Enter destination location" />
+          <button class="action-btn" id="route-btn">Find Route</button>
+        </section>
+      `
+    };
+
+    function loadContent(name) {
+      mainPanel.innerHTML = contentMap[name] + `<section class="card output-area" id="output"><h2>Output Display Area</h2><pre id="out-pre">Ready.</pre></section>`;
+      attachHandlers(name);
+    }
+
+    function updateOutput(text) {
+      const pre = document.getElementById('out-pre');
+      if (pre) pre.textContent = text;
+    }
+
+    sidebarButtons.forEach(btn => {
+      btn.addEventListener('click', async () => {
+        sidebarButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        loadContent(btn.textContent.trim());
+      });
+    });
+
+    loadContent("Upload Dataset"); // initial
+
+    async function attachHandlers(name) {
+      if (name === "Upload Dataset") {
+        const fileInput = document.getElementById("dataset-file");
+        const fileLabel = document.getElementById("file-label");
+        fileInput.onchange = () => {
+          if(fileInput.files.length > 0) {
+            fileLabel.textContent = `Selected: ${fileInput.files[0].name}`;
+          } else {
+            fileLabel.textContent = 'Choose CSV file';
+          }
+        };
+
+        document.getElementById("upload-btn").onclick = async () => {
+          const file = fileInput.files[0];
+          if (!file) { updateOutput("No file selected."); return; }
+          const formData = new FormData();
+          formData.append("dataset", file);
+          updateOutput("Uploading...");
+          try {
+            const res = await fetch(`${backendBase}/upload`, { method: "POST", body: formData });
+            const j = await res.json();
+            if (j.ok) {
+              updateOutput(j.message + `\nColumns: ${j.columns.join(", ")}\nNumeric: ${j.numeric_columns.join(", ")}`);
+              document.getElementById("upload-info").textContent = `Uploaded ${j.filename} — shape: ${j.shape}`;
+            } else {
+              updateOutput("Upload failed: " + j.message);
+            }
+          } catch (e) {
+            updateOutput("Upload error: " + e.toString());
+          }
+        };
+      }
+
+      if (name === "Initialize Spark") {
+        document.getElementById("init-spark-btn").onclick = async () => {
+          updateOutput("Initializing Spark...");
+          try {
+            const res = await fetch(`${backendBase}/init-spark`);
+            const j = await res.json();
+            if (j.ok) updateOutput(j.message); else updateOutput("Spark: " + j.message);
+          } catch (e) {
+            updateOutput("Spark init failed: " + e.toString());
+          }
+        };
+      }
+
+      if (name === "Run Linear Regression" || name === "Run Decision Tree") {
+        const datasets = await fetchDatasets();
+        const dsSelectLR = document.getElementById("dataset-select-lr");
+        const dsSelectDT = document.getElementById("dataset-select-dt");
+
+        const fillSelect = (selectEl, datasets) => {
+          if (!selectEl) return;
+          selectEl.innerHTML = "";
+          datasets.forEach(d => {
+            const opt = document.createElement("option");
+            opt.value = d.filename;
+            opt.textContent = `${d.filename} (${d.shape[0]}x${d.shape[1]})`;
+            selectEl.appendChild(opt);
+          });
+        };
+
+        fillSelect(dsSelectLR, datasets);
+        fillSelect(dsSelectDT, datasets);
+
+        const fillTargets = (datasetFilename, targetSelectId) => {
+          const d = datasets.find(x => x.filename === datasetFilename);
+          const sel = document.getElementById(targetSelectId);
+          if (!sel) return;
+          sel.innerHTML = "";
+          if (!d) return;
+          d.numeric_columns.forEach(c => {
+            const o = document.createElement("option");
+            o.value = c;
+            o.textContent = c;
+            sel.appendChild(o);
+          });
+        };
+
+        if (dsSelectLR) dsSelectLR.onchange = () => fillTargets(dsSelectLR.value, "target-select-lr");
+        if (dsSelectDT) dsSelectDT.onchange = () => fillTargets(dsSelectDT.value, "target-select-dt");
+        if (dsSelectLR) fillTargets(dsSelectLR.value, "target-select-lr");
+        if (dsSelectDT) fillTargets(dsSelectDT.value, "target-select-dt");
+
+        if (name === "Run Linear Regression") {
+          document.getElementById("run-linreg-btn").onclick = async () => {
+            const filename = document.getElementById("dataset-select-lr").value;
+            const target = document.getElementById("target-select-lr").value;
+            if (!filename || !target) { updateOutput("Select dataset and target."); return; }
+            updateOutput("Training linear regression...");
+            try {
+              const res = await fetch(`${backendBase}/linear-regression`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ filename, target })
+              });
+              const j = await res.json();
+              if (j.ok) {
+                updateOutput(`Done. Metrics:\nR2: ${j.metrics.r2}\nMSE: ${j.metrics.mse}\nModel: ${j.model_path}`);
+              } else {
+                updateOutput("Error: " + j.message);
+              }
+            } catch (e) {
+              updateOutput("Training error: " + e.toString());
+            }
+          };
+        }
+
+        if (name === "Run Decision Tree") {
+          document.getElementById("run-dtree-btn").onclick = async () => {
+            const filename = document.getElementById("dataset-select-dt").value;
+            const target = document.getElementById("target-select-dt").value;
+            if (!filename || !target) { updateOutput("Select dataset and target."); return; }
+            updateOutput("Training decision tree...");
+            try {
+              const res = await fetch(`${backendBase}/decision-tree`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ filename, target })
+              });
+              const j = await res.json();
+              if (j.ok) {
+                updateOutput(`Done. Metrics:\nR2: ${j.metrics.r2}\nMSE: ${j.metrics.mse}\nModel: ${j.model_path}`);
+              } else {
+                updateOutput("Error: " + j.message);
+              }
+            } catch (e) {
+              updateOutput("Training error: " + e.toString());
+            }
+          };
+        }
+      }
+
+      if (name === "Accuracy Graph") {
+        document.getElementById("accuracy-btn").onclick = async () => {
+          updateOutput("Fetching accuracy graph...");
+          try {
+            const res = await fetch(`${backendBase}/accuracy-graph`);
+            if (!res.ok) {
+              const j = await res.json();
+              updateOutput("No graph: " + (j.message || res.statusText));
+              return;
+            }
+            const blob = await res.blob();
+            const url = URL.createObjectURL(blob);
+            const cont = document.getElementById("accuracy-container");
+            cont.innerHTML = `<img src="${url}" alt="Accuracy graph" style="max-width:100%; border-radius:8px; box-shadow:0 6px 12px rgba(0,0,0,0.08)"/>`;
+            updateOutput("Graph shown below.");
+          } catch (e) {
+            updateOutput("Graph error: " + e.toString());
+          }
+        };
+      }
+
+      if (name === "Find Best Route") {
+        document.getElementById("route-btn").onclick = async () => {
+          const origin = document.getElementById("origin").value.trim();
+          const destination = document.getElementById("destination").value.trim();
+          if (!origin || !destination) { updateOutput("Please enter origin and destination."); return; }
+          updateOutput("Calculating route...");
+          try {
+            const res = await fetch(`${backendBase}/find-route`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ origin, destination })
+            });
+            const j = await res.json();
+            if (j.ok) {
+              updateOutput(JSON.stringify(j.route, null, 2));
+            } else {
+              updateOutput("Route error: " + j.message);
+            }
+          } catch (e) {
+            updateOutput("Route request failed: " + e.toString());
+          }
+        };
+      }
+    }
+  </script>
+</body>
+</html>

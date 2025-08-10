@@ -1,0 +1,7 @@
+Date,Time,Location,Vehicle Count,Avg Speed (km/h),Weather
+2025-08-10,08:00,Main St & 1st Ave,120,45,Sunny
+2025-08-10,09:00,Main St & 1st Ave,150,40,Sunny
+2025-08-10,08:00,2nd Ave & Pine St,95,38,Cloudy
+2025-08-10,09:00,2nd Ave & Pine St,110,35,Cloudy
+2025-08-10,10:00,Main St & 1st Ave,170,42,Sunny
+2025-08-10,10:00,2nd Ave & Pine St,130,37,Rainy
