@@ -2,10 +2,14 @@
 import os
 import io
 import traceback
-from flask import Flask, render_template, request, jsonify, send_file
+from flask import Flask, render_template, request, redirect, jsonify, send_file,session, url_for,flash
 from flask_cors import CORS
 import pandas as pd
 import numpy as np
+from flask_cors import CORS
+from werkzeug.security import generate_password_hash, check_password_hash
+from functools import wraps
+from pymongo import MongoClient
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
@@ -14,6 +18,8 @@ import matplotlib.pyplot as plt
 import joblib
 import requests
 import re
+import certifi
+from dotenv import load_dotenv
 
 # Optional pyspark
 try:
@@ -21,9 +27,11 @@ try:
     PysparkAvailable = True
 except Exception:
     PysparkAvailable = False
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
+app.secret_key = os.getenv("SECRET_KEY")
 
 # Folders
 UPLOAD_FOLDER = "uploads"
@@ -41,10 +49,82 @@ last_train_result = {
 }
 # GOOGLE_API_KEY = "AIzaSyDe54SYl1jRu7xGLtvNUTuff8jI2qZtRmc"
 
+# ---------------- MongoDB ----------------
+MONGO_URI = "mongodb+srv://trinadh:BDAINITS@cluster0.4kbxctx.mongodb.net/ITS_DB?retryWrites=true&w=majority&appName=Cluster0"
+# Test connection once
+try:
+    client = MongoClient(MONGO_URI, tlsCAFile=certifi.where())
+    print(client.server_info())
+    print("MongoDB Connected Successfully!")
+except Exception as e:
+    print("Mongo Error:", e)
+client = MongoClient(MONGO_URI)
 
+db = client["ITS_DB"]
+users_col = db["users"]
+datasets_col = db["datasets"]
+train_results_col = db["train_results"]
+
+
+# ---------------- Registration ----------------
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        if not username or not password:
+            flash("Username and password required", "error")
+            return redirect(url_for("register"))
+
+        if users_col.find_one({"username": username}):
+            flash("Username already exists", "error")
+            return redirect(url_for("register"))
+
+        users_col.insert_one({
+            "username": username,
+            "password": generate_password_hash(password)
+        })
+        flash("Registration successful! Please log in.", "success")
+        return redirect(url_for("login"))
+
+    return render_template("register.html")
+
+
+# ---------------- Login ----------------
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+
+        user = users_col.find_one({"username": username})
+        if user and check_password_hash(user["password"], password):
+            session["user"] = username
+            return redirect(url_for("index"))
+        flash("Invalid username or password", "error")
+        return redirect(url_for("login"))
+
+    return render_template("login.html")
+
+
+# ---------------- Logout ----------------
+@app.route("/logout")
+def logout():
+    session.pop("user", None)
+    flash("Logged out successfully.", "success")
+    return redirect(url_for("login"))
+
+
+# ---------------- Dashboard ----------------
 @app.route("/")
+
 def index():
-    return render_template("index.html")
+    user = None
+    if "user" in session:
+        user = {"name": session["user"]}
+    return render_template("index.html", user=user)
+
+
 
 
 @app.route("/upload", methods=["POST"])

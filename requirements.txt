@@ -6,6 +6,6 @@ joblib
 matplotlib
 seaborn
 networkx
-openpyxl   # for Excel reading
+openpyxl   
 
 pyspark

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Multi-Chart Data Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+ /* Body & Container */
+body {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 30px;
+  background: linear-gradient(to right, #e3e8ef, #cfd8e8);
+}
+
+.container {
+  max-width: 1200px;
+  margin: auto;
+  background: #ffffff;
+  padding: 30px 40px;
+  border-radius: 20px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.container:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 35px rgba(0, 0, 0, 0.18);
+}
+
+/* Headings */
+h1 {
+  font-weight: 700;
+  font-size: 2.4rem;
+  color: #1b263b;
+  text-align: center;
+  margin-bottom: 35px;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.08);
+}
+
+/* File Input */
+input[type="file"] {
+  display: block;
+  margin-bottom: 22px;
+  padding: 14px 20px;
+  border-radius: 12px;
+  border: 1px solid #aab8c2;
+  background: #fdfdfd;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+input[type="file"]:hover {
+  border-color: #375a7f;
+  background: #f1f5ff;
+}
+
+/* Controls Card */
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-bottom: 30px;
+  align-items: center;
+  background: linear-gradient(145deg, #f9fafc, #eef1f7);
+  padding: 22px;
+  border-radius: 15px;
+  box-shadow: inset 0 3px 8px rgba(0,0,0,0.06);
+}
+
+.controls label {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+/* Dropdowns & Buttons */
+select, button {
+  padding: 12px 20px;
+  border-radius: 10px;
+  border: 1px solid #aab8c2;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: #fff;
+}
+select:hover {
+  border-color: #375a7f;
+}
+
+button#addChart {
+  background: linear-gradient(45deg, #1e3c72, #2a5298);
+  color: #fff;
+  border: none;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(30,60,114,0.4);
+}
+button#addChart:hover {
+  background: linear-gradient(45deg, #162b50, #1f3b7a);
+  box-shadow: 0 6px 16px rgba(30,60,114,0.5);
+}
+
+button#clearCharts {
+  background: linear-gradient(45deg, #c0392b, #e74c3c);
+  color: #fff;
+  border: none;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(192,57,43,0.4);
+}
+button#clearCharts:hover {
+  background: linear-gradient(45deg, #992d22, #c0392b);
+  box-shadow: 0 6px 16px rgba(192,57,43,0.5);
+}
+
+/* Charts Grid */
+.charts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+  gap: 28px;
+}
+
+/* Canvas Styling */
+canvas {
+  background: #fefefe;
+  border-radius: 15px;
+  padding: 18px;
+  width: 100% !important;
+  height: auto !important;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+canvas:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 22px rgba(0,0,0,0.12);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .controls {
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  select, button {
+    width: 100%;
+  }
+}
+
+/* Placeholder for charts when none exist */
+#chartsContainer:empty::before {
+  content: "No charts added. Upload a file and select options above.";
+  display: block;
+  text-align: center;
+  color: #7f8c8d;
+  font-style: italic;
+  padding: 60px 0;
+  font-size: 1.1rem;
+}
+
+/* Highlight file name after upload */
+input[type="file"]::after {
+  content: attr(data-filename);
+  display: block;
+  font-size: 0.95rem;
+  color: #34495e;
+  margin-top: 6px;
+}
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Multi-Chart Data Dashboard</h1>
+    <input type="file" id="fileInput" accept=".csv, .xlsx" />
+    <div class="controls" id="controls" style="display:none;">
+      <label for="xSelect">X-axis:</label>
+      <select id="xSelect"></select>
+      <label for="ySelect">Y-axis:</label>
+      <select id="ySelect"></select>
+      <label for="chartType">Chart Type:</label>
+      <select id="chartType">
+        <option value="bar">Bar</option>
+        <option value="line">Line</option>
+        <option value="pie">Pie</option>
+        <option value="scatter">Scatter</option>
+      </select>
+      <button id="addChart">Add Chart</button>
+      <button id="clearCharts">Clear Charts</button>
+    </div>
+    <div class="charts" id="chartsContainer"></div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <script>
+    let parsedData = [];
+    let dataColumns = [];
+    let columnTypes = {};
+    const chartsContainer = document.getElementById('chartsContainer');
+
+    const fileInput = document.getElementById('fileInput');
+    const xSelect = document.getElementById('xSelect');
+    const ySelect = document.getElementById('ySelect');
+    const chartTypeSelect = document.getElementById('chartType');
+    const addChartBtn = document.getElementById('addChart');
+    const clearChartsBtn = document.getElementById('clearCharts');
+    const controlsDiv = document.getElementById('controls');
+
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if(!file) return;
+
+      Papa.parse(file, {
+        header: true,
+        dynamicTyping: true,
+        complete: function(results){
+          parsedData = results.data.filter(row => Object.keys(row).length > 0);
+          dataColumns = Object.keys(parsedData[0]);
+          detectColumnTypes();
+          populateDropdowns();
+          suggestChartType();
+          controlsDiv.style.display = 'flex';
+        }
+      });
+    });
+
+    function detectColumnTypes() {
+      columnTypes = {};
+      dataColumns.forEach(col => {
+        const sample = parsedData.map(r => r[col]).filter(v => v !== null && v !== "");
+        columnTypes[col] = sample.every(v => typeof v === 'number') ? 'numeric' : 'categorical';
+      });
+    }
+
+    function populateDropdowns() {
+      xSelect.innerHTML = '';
+      ySelect.innerHTML = '';
+      dataColumns.forEach(col => {
+        const optionX = document.createElement('option');
+        optionX.value = col;
+        optionX.text = col;
+        xSelect.add(optionX);
+
+        const optionY = document.createElement('option');
+        optionY.value = col;
+        optionY.text = col;
+        ySelect.add(optionY);
+      });
+    }
+
+    function suggestChartType() {
+      const xType = columnTypes[xSelect.value];
+      const yType = columnTypes[ySelect.value];
+      if(xType === 'categorical' && yType === 'numeric'){
+        chartTypeSelect.value = 'bar';
+      } else if(xType === 'numeric' && yType === 'numeric'){
+        chartTypeSelect.value = 'scatter';
+      } else if(xType === 'categorical' && !ySelect.value){
+        chartTypeSelect.value = 'pie';
+      } else {
+        chartTypeSelect.value = 'line';
+      }
+    }
+
+    function createChart(xCol, yCol, chartType) {
+      const canvas = document.createElement('canvas');
+      chartsContainer.appendChild(canvas);
+
+      let labels = parsedData.map(row => row[xCol]);
+      let values = yCol ? parsedData.map(row => row[yCol]) : parsedData.map(() => 1);
+
+      if(chartType === 'scatter'){
+        values = parsedData.map(row => ({x: row[xCol], y: row[yCol]}));
+      }
+
+      const data = {
+        labels: chartType !== 'scatter' && chartType !== 'pie' ? labels : undefined,
+        datasets: [{
+          label: yCol ? `${yCol} vs ${xCol}` : `${xCol}`,
+          data: values,
+          backgroundColor: 'rgba(54, 162, 235, 0.6)',
+          borderColor: 'rgba(54, 162, 235, 1)',
+          borderWidth: 1,
+          fill: chartType === 'line' ? false : true,
+          tension: 0.3,
+          pointRadius: chartType === 'scatter' ? 5 : 3,
+          pointHoverRadius: 7
+        }]
+      };
+
+      const config = {
+        type: chartType,
+        data: data,
+        options: {
+          responsive: true,
+          plugins: { 
+            tooltip: { enabled: true }, 
+            legend: { display: true, labels: { font: { weight: '600', size: 14 } } } 
+          },
+          scales: chartType !== 'pie' ? {
+            x: { 
+              beginAtZero: true,
+              grid: { color: 'rgba(200,200,200,0.2)' },
+              ticks: { font: { size: 12, weight: '600' } }
+            },
+            y: { 
+              beginAtZero: true,
+              grid: { color: 'rgba(200,200,200,0.2)' },
+              ticks: { font: { size: 12, weight: '600' } }
+            }
+          } : {}
+        }
+      };
+
+      new Chart(canvas, config);
+    }
+
+    addChartBtn.addEventListener('click', () => {
+      createChart(xSelect.value, ySelect.value, chartTypeSelect.value);
+    });
+
+    clearChartsBtn.addEventListener('click', () => {
+      chartsContainer.innerHTML = '';
+    });
+
+    xSelect.addEventListener('change', suggestChartType);
+    ySelect.addEventListener('change', suggestChartType);
+  </script>
+</body>
+</html>

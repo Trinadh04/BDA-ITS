@@ -302,22 +302,24 @@ footer a:hover {
 </head>
 <body>
   <div class="container">
-   <header style="display: flex; justify-content: space-between; align-items: center; padding: 10px;">
+  <header style="display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #ccc;">
   <div style="display: flex; align-items: center; gap: 10px;">
-    <div class="logo" aria-label="Project logo" role="img" title="ITS Logo" style="font-weight: bold; font-size: 24px;">
-      ITS
-    </div>
-    <div style="font-size: 18px; font-weight: 600;">
-       BDA in Intelligent Transportation System :A Survey
-    </div>
+    <div class="logo" style="font-weight: bold; font-size: 24px;">ITS</div>
+    <div style="font-size: 18px; font-weight: 600;">BDA in Intelligent Transportation System : A Survey</div>
   </div>
 
-  
-    <img src="static/parul.png" 
-       alt="Parul University " 
-       style="height: 70px;" />
-  
+  <div style="display: flex; align-items: center; gap: 15px;">
+    {% if user %}
+      <span>Welcome, {{ user.name }}!</span>
+      <a href="{{ url_for('logout') }}" style="text-decoration: none; color: #007bff;">Logout</a>
+    {% else %}
+      <a href="{{ url_for('login') }}" style="text-decoration: none; color: #007bff;">Login</a>
+      <a href="{{ url_for('register') }}" style="text-decoration: none; color: #007bff;">Register</a>
+    {% endif %}
+    <img src="{{ url_for('static', filename='parul.png') }}" alt="Parul University" style="height: 70px;">
+  </div>
 </header>
+
 
     <nav class="sidebar" aria-label="Main Navigation">
       <button class="active" type="button" title="Upload your traffic dataset CSV file">
@@ -348,6 +350,15 @@ footer a:hover {
         <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/></svg>
         Find Best Route
       </button>
+     <button type="button" title="Find best route between two locations"
+        onclick="window.open('/static/data.html', '_blank')">
+  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/>
+  </svg>
+  Data Dashboard
+</button>
+
+
     </nav>
 
     <main class="panel" role="main" id="main-panel" tabindex="0">
@@ -355,10 +366,22 @@ footer a:hover {
     </main>
 
     <footer>
-  Developed by A.Trinadh Sai, V.V.Ramana Reddy, V.Ashok Reddy, A.Jaya Simha Reddy&nbsp;|&nbsp;
-  Guide: <a href="#" title="Guide Profile">Alok Singh Kushwaha sir</a> / 
-  <a href="https://paruluniversity.ac.in/" target="_blank" rel="noopener">PIET Parul University</a>
+  Developed by Team ;|&nbsp;
+  Guide: 
+  <a 
+    href="https://wa.me/+917827093889?text=Hello%20Sir,%20I%20need%20your%20guidance" 
+    target="_blank" 
+    rel="noopener noreferrer"
+    title="Message Guide on WhatsApp"
+  >
+    Alok Singh Kushwaha sir
+  </a> / 
+  <a href="https://paruluniversity.ac.in/" target="_blank" rel="noopener noreferrer">
+    PIET Parul University
+  </a>
 </footer>
+
+
 
   </div>
   <script>
