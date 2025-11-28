@@ -50,7 +50,8 @@ last_train_result = {
 # GOOGLE_API_KEY = "AIzaSyDe54SYl1jRu7xGLtvNUTuff8jI2qZtRmc"
 
 # ---------------- MongoDB ----------------
-MONGO_URI = "mongodb+srv://trinadh:BDAINITS@cluster0.4kbxctx.mongodb.net/ITS_DB?retryWrites=true&w=majority&appName=Cluster0"
+MONGO_URI = os.getenv("MONGO_URI")
+
 # Test connection once
 try:
     client = MongoClient(MONGO_URI, tlsCAFile=certifi.where())
